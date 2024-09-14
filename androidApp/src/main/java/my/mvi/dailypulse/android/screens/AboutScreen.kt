@@ -1,4 +1,4 @@
-package my.mvi.dailypulse.android
+package my.mvi.dailypulse.android.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
