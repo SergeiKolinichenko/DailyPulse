@@ -2,11 +2,26 @@ import SwiftUI
 import shared
 
 struct ContentView: View {
-	let greet = Greeting().greet()
+
+    @State privat var shouldOpenAbout = false
 
 	var body: some View {
-		Text(greet)
-	}
+	    NavigationStack {
+            ArticlesScreen(viewModel: .init())
+	        .toolbar {
+	        ToolbarItem {
+	            Button {
+                    shouldOpenAbout = true
+	                } label: {
+	                    label("About", systemImage "info.circle").lableStyle(.titleAndIcon)
+	                }
+	                .popover(isPresented: $shouldOpenAbout) {
+	                    AboutScreen()
+	                }
+	            }
+	        }
+        }
+    }
 }
 
 struct ContentView_Previews: PreviewProvider {
