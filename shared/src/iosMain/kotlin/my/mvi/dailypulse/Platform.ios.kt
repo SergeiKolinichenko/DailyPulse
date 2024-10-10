@@ -1,6 +1,8 @@
 package my.mvi.dailypulse
 
+import platform.Foundation.NSLog
 import platform.UIKit.UIDevice
+import platform.UIKit.UIScreen
 
 actual class Platform {
     actual val osName: String
@@ -13,7 +15,7 @@ actual class Platform {
         get() = UIScreen.mainScreen.scale.toInt()
 
     actual fun logSystemInfo() {
-        NSLog("OS Name: $osName OS Version: $osVersion Device Model: $deviceModel Density: $density")
+        NSLog("System info: $osName $osVersion $deviceModel $density")
     }
 
 }
