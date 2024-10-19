@@ -5,14 +5,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.cancel
 
-/** Created by Sergei Kolinichenko on 10.09.2024 at 18:07 (GMT+3) **/
+actual open class BaseViewModel {
 
-class BaseViewModel {
+    actual val scope: CoroutineScope
+        get() = CoroutineScope(Dispatchers.IO)
 
-  val scope = CoroutineScope(Dispatchers.IO)
-
-  fun clear() {
-    scope.cancel()
-  }
-
+    fun clear() { scope.cancel() }
 }

@@ -33,107 +33,112 @@ import coil.compose.AsyncImage
 import my.mvi.dailypulse.articles.Article
 import my.mvi.dailypulse.articles.ArticlesViewModel
 
-/** Created by Sergei Kolinichenko on 11.09.2024 at 12:58 (GMT+3) **/
-
 @Composable
 fun ArticlesScreen(
-  onAboutButtonClick: () -> Unit,
-  articlesViewModel: ArticlesViewModel,
+    onAboutButtonClick: () -> Unit,
+    articlesViewModel: ArticlesViewModel,
 ) {
-  val articlesState = articlesViewModel.articlesState.collectAsState()
+    val articlesState = articlesViewModel.articlesState.collectAsState()
 
-  Column {
-    AppBar(onAboutButtonClick)
+    Column {
+        AppBar(onAboutButtonClick)
 
-    if (articlesState.value.loading)
-      Loader()
-    if (articlesState.value.error != null)
-      ErrorMessage(articlesState.value.error!!)
-    if (articlesState.value.articles.isNotEmpty())
-      ArticlesListView(articlesViewModel.articlesState.value.articles)
-  }
+        when {
+            articlesState.value.loading -> {
+                Loader()
+            }
+
+            articlesState.value.error != null -> {
+                ErrorMessage(message = articlesState.value.error!!)
+            }
+
+            articlesState.value.articles.isNotEmpty() -> {
+                ArticlesListView(articles = articlesState.value.articles)
+            }
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AppBar(
-  onAboutButtonClick: () -> Unit,
+    onAboutButtonClick: () -> Unit,
 ) {
-  TopAppBar(
-    title = { Text(text = "Articles") },
-    actions = {
-      IconButton(onClick = onAboutButtonClick) {
-        Icon(
-          imageVector = Icons.Outlined.Info,
-          contentDescription = "About Device Button",
-        )
-      }
-    }
-  )
+    TopAppBar(
+        title = { Text(text = "Articles") },
+        actions = {
+            IconButton(onClick = onAboutButtonClick) {
+                Icon(
+                    imageVector = Icons.Outlined.Info,
+                    contentDescription = "About Device Button",
+                )
+            }
+        }
+    )
 }
 
 @Composable
 fun ArticlesListView(articles: List<Article>) {
 
-  LazyColumn(modifier = Modifier.fillMaxSize()) {
-    items(items = articles) { article ->
-      ArticleItemView(article = article)
+    LazyColumn(modifier = Modifier.fillMaxSize()) {
+        items(articles) { article ->
+            ArticleItemView(article = article)
+        }
     }
-  }
 }
 
 @Composable
 fun ArticleItemView(article: Article) {
 
-  Column(
-    modifier = Modifier
-      .fillMaxWidth()
-      .padding(16.dp)
-  ) {
-    AsyncImage(
-      model = article.imageUrl,
-      contentDescription = null
-    )
-    Spacer(modifier = Modifier.height(4.dp))
-    Text(
-      text = article.title,
-      style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 22.sp)
-    )
-    Spacer(modifier = Modifier.height(8.dp))
-    Text(text = article.desc)
-    Spacer(modifier = Modifier.height(4.dp))
-    Text(
-      text = article.date,
-      style = TextStyle(color = Color.Gray),
-      modifier = Modifier.align(Alignment.End)
-    )
-    Spacer(modifier = Modifier.height(4.dp))
-  }
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        AsyncImage(
+            model = article.imageUrl,
+            contentDescription = null
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = article.title,
+            style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 22.sp)
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(text = article.desc)
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = article.date,
+            style = TextStyle(color = Color.Gray),
+            modifier = Modifier.align(Alignment.End)
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+    }
 }
 
 @Composable
 fun Loader() {
-  Box(
-    modifier = Modifier.fillMaxSize(),
-    contentAlignment = Alignment.Center
-  ) {
-    CircularProgressIndicator(
-      modifier = Modifier.width(64.dp),
-      color = MaterialTheme.colorScheme.surfaceVariant,
-      trackColor = MaterialTheme.colorScheme.secondary,
-    )
-  }
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator(
+            modifier = Modifier.width(64.dp),
+            color = MaterialTheme.colorScheme.surfaceVariant,
+            trackColor = MaterialTheme.colorScheme.secondary,
+        )
+    }
 }
 
 @Composable
 fun ErrorMessage(message: String) {
-  Box(
-    modifier = Modifier.fillMaxSize(),
-    contentAlignment = Alignment.Center
-  ) {
-    Text(
-      text = message,
-      style = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center)
-    )
-  }
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = message,
+            style = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center)
+        )
+    }
 }
