@@ -7,8 +7,9 @@ import kotlinx.coroutines.cancel
 
 actual open class BaseViewModel {
 
-    actual val scope: CoroutineScope
-        get() = CoroutineScope(Dispatchers.IO)
+    actual val scope: CoroutineScope = CoroutineScope(Dispatchers.IO)
 
-    fun clear() { scope.cancel() }
+    fun clear() {
+        scope.cancel()
+    }
 }

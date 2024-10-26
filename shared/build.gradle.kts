@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.touchlab.skie)
+    alias(libs.plugins.kotlin.plugin.serialization)
 }
 
 kotlin {
@@ -31,18 +32,23 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(libs.kotlin.coroutines.core)
+                implementation(libs.ktor.client.core)
+                implementation(libs.ktor.client.content.negotiation)
+                implementation(libs.ktor.serialization.kotlinx.json)
+                implementation(libs.kotlinx.datetime)
             }
         }
 
         val androidMain by getting {
             dependencies {
                 implementation(libs.lifecycle.viewmodel.ktx)
+                implementation(libs.ktor.client.android)
             }
         }
 
         val iosMain by getting {
             dependencies {
-                //put your multiplatform dependencies here
+                implementation(libs.ktor.client.darwin)
             }
         }
 
