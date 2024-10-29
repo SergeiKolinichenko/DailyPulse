@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.touchlab.skie)
     alias(libs.plugins.kotlin.plugin.serialization)
+    alias(libs.plugins.sql.delight.plugin)
 }
 
 kotlin {
@@ -15,6 +16,7 @@ kotlin {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_17)
+            freeCompilerArgs.addAll(listOf("-Xexpect-actual-classes", "-Xanother-flag"))
         }
     }
     
@@ -37,6 +39,7 @@ kotlin {
                 implementation(libs.ktor.serialization.kotlinx.json)
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.koin.core)
+                implementation(libs.sql.coroutines.extensions)
             }
         }
 
@@ -44,12 +47,14 @@ kotlin {
             dependencies {
                 implementation(libs.lifecycle.viewmodel.ktx)
                 implementation(libs.ktor.client.android)
+                implementation(libs.sql.android.driver)
             }
         }
 
         val iosMain by getting {
             dependencies {
                 implementation(libs.ktor.client.darwin)
+                implementation(libs.sql.native.driver)
             }
         }
 
@@ -70,5 +75,13 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+    }
+}
+
+sqldelight {
+    databases {
+        create("DailyPulseDatabase") {
+            packageName.set("my.mvi.dailypulse.database")
+        }
     }
 }

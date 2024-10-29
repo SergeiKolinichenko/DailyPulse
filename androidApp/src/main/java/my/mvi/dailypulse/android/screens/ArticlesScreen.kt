@@ -1,24 +1,26 @@
 package my.mvi.dailypulse.android.screens
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
+import androidx.compose.material3.pulltorefresh.PullToRefreshState
+import androidx.compose.material3.pulltorefresh.pullToRefresh
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
@@ -37,25 +39,17 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun ArticlesScreen(
     onAboutButtonClick: () -> Unit,
-    articlesViewModel: ArticlesViewModel = koinViewModel<ArticlesViewModel>(),
+    viewModel: ArticlesViewModel = koinViewModel<ArticlesViewModel>(),
 ) {
-    val articlesState = articlesViewModel.articlesState.collectAsState()
+    val articlesState = viewModel.articlesState.collectAsState()
 
     Column {
         AppBar(onAboutButtonClick)
 
         when {
-            articlesState.value.loading -> {
-                Loader()
-            }
-
-            articlesState.value.error != null -> {
-                ErrorMessage(message = articlesState.value.error!!)
-            }
-
-            articlesState.value.articles.isNotEmpty() -> {
-                ArticlesListView(articles = articlesState.value.articles)
-            }
+            articlesState.value.error != null -> ErrorMessage(message = articlesState.value.error!!)
+            articlesState.value.articles.isNotEmpty() -> ArticlesListView(viewModel)
+            articlesState.value.loading -> ArticlesListView(viewModel)
         }
     }
 }
@@ -78,12 +72,21 @@ private fun AppBar(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ArticlesListView(articles: List<Article>) {
+fun ArticlesListView(viewModel: ArticlesViewModel) {
 
-    LazyColumn(modifier = Modifier.fillMaxSize()) {
-        items(articles) { article ->
-            ArticleItemView(article = article)
+    PullToRefreshBox (
+        isRefreshing = viewModel.articlesState.value.loading,
+        onRefresh = { viewModel.getArticles(forceFetch = true) }
+
+    ) {
+        LazyColumn(modifier = Modifier
+            .fillMaxSize()
+        ) {
+            items(viewModel.articlesState.value.articles) { article ->
+                ArticleItemView(article = article)
+            }
         }
     }
 }
@@ -118,20 +121,6 @@ fun ArticleItemView(article: Article) {
 }
 
 @Composable
-fun Loader() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        CircularProgressIndicator(
-            modifier = Modifier.width(64.dp),
-            color = MaterialTheme.colorScheme.surfaceVariant,
-            trackColor = MaterialTheme.colorScheme.secondary,
-        )
-    }
-}
-
-@Composable
 fun ErrorMessage(message: String) {
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -141,5 +130,36 @@ fun ErrorMessage(message: String) {
             text = message,
             style = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center)
         )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun PullToRefreshBox(
+    modifier: Modifier = Modifier,
+    isRefreshing: Boolean,
+    onRefresh: () -> Unit,
+    state: PullToRefreshState = rememberPullToRefreshState(),
+    contentAlignment: Alignment = Alignment.TopStart,
+    indicator: @Composable BoxScope.() -> Unit = {
+        Indicator(
+            modifier = Modifier
+                .align(Alignment.Center),
+            isRefreshing = isRefreshing,
+            state = state
+        )
+    },
+    content: @Composable BoxScope.() -> Unit
+) {
+    Box(
+        modifier.pullToRefresh(
+            state = state,
+            isRefreshing = isRefreshing,
+            onRefresh = onRefresh
+        ),
+        contentAlignment = contentAlignment
+    ) {
+        content()
+        indicator()
     }
 }

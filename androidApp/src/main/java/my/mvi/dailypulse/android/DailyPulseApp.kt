@@ -1,6 +1,7 @@
 package my.mvi.dailypulse.android
 
 import android.app.Application
+import my.mvi.dailypulse.android.di.databaseModule
 import my.mvi.dailypulse.android.di.viewModelModule
 import my.mvi.dailypulse.di.sharedKoinModules
 import org.koin.android.ext.koin.androidContext
@@ -13,7 +14,7 @@ class DailyPulseApp: Application() {
     }
 
     private fun initKoin() {
-        val modules = sharedKoinModules + viewModelModule
+        val modules = sharedKoinModules + viewModelModule + databaseModule
 
         startKoin {
             androidContext(this@DailyPulseApp)

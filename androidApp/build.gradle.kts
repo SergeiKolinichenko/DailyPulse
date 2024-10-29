@@ -50,5 +50,9 @@ dependencies {
     implementation(libs.koin.androidx.compose)
     implementation(libs.koin.android)
 
+    implementation(libs.accompanist.swiperefresh)
+
+    implementation(libs.androidx.compose.material3)
+
     debugImplementation(libs.compose.ui.tooling)
 }

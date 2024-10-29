@@ -1,5 +1,6 @@
 package my.mvi.dailypulse.articles
 
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -10,17 +11,21 @@ class ArticlesViewModel(
 ): BaseViewModel() {
 
     private val _articlesState: MutableStateFlow<ArticlesState> = MutableStateFlow(ArticlesState(loading = true))
-
-    val articlesState: StateFlow<ArticlesState> get() = _articlesState
+    val articlesState: StateFlow<ArticlesState> = _articlesState
 
     init {
         getArticles()
     }
 
-    private fun getArticles() {
+    fun getArticles(forceFetch: Boolean = false) {
+
         scope.launch {
 
-            val fetchedArticles = useCase.getArticles()
+            _articlesState.emit(ArticlesState(loading = true))
+
+            val fetchedArticles = useCase.getArticles(forceFetch)
+
+            delay(5000)
 
             _articlesState.emit(ArticlesState(articles = fetchedArticles))
         }
