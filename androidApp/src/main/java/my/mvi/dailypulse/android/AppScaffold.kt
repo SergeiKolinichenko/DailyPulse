@@ -12,6 +12,7 @@ import androidx.navigation.compose.rememberNavController
 import my.mvi.dailypulse.android.screens.AboutScreen
 import my.mvi.dailypulse.android.screens.ArticlesScreen
 import my.mvi.dailypulse.android.screens.Screens
+import my.mvi.dailypulse.android.screens.SourcesScreen
 
 @Composable
 fun AppScaffold() {
@@ -39,10 +40,15 @@ fun AppNavHost(
     ) {
         composable(Screens.ARTICLES.route) {
             ArticlesScreen(
-                onAboutButtonClick = { navController.navigate(Screens.ABOUT_DEVICE.route) }
+                onAboutButtonClick = { navController.navigate(Screens.ABOUT_DEVICE.route) },
+                onSourcesButtonClick = { navController.navigate(Screens.SOURCES.route) }
             )
         }
-
+        composable(Screens.SOURCES.route) {
+            SourcesScreen(
+                onUpButtonClick = { navController.popBackStack() }
+            )
+        }
         composable(Screens.ABOUT_DEVICE.route) {
             AboutScreen(
                 onUpButtonClick = { navController.popBackStack() }

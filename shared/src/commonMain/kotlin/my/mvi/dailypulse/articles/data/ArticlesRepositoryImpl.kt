@@ -1,4 +1,4 @@
-package my.mvi.dailypulse.articles
+package my.mvi.dailypulse.articles.data
 
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -6,16 +6,32 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.daysUntil
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.datetime.todayIn
+import my.mvi.dailypulse.articles.domain.Article
+import my.mvi.dailypulse.articles.domain.ArticlesRepository
 import kotlin.math.abs
 
-class ArticlesUseCase(private val repo: ArticlesRepository) {
+class ArticlesRepositoryImpl(
+    private val dataSource: ArticlesDataSource,
+    private val service: ArticlesService,
+): ArticlesRepository {
 
-    suspend fun getArticles(forceFetch: Boolean): List<Article> {
-        val articlesRaw = repo.getArticles(forceFetch)
-        return mapArticles(articlesRaw)
+    override suspend fun getArticles(forceFetch: Boolean): List<Article> {
+        if (forceFetch) {
+            dataSource.cleanArticles()
+            return fetchArticles()
+        }
+        val articlesDb = dataSource.getAllArticles()
+        if (articlesDb.isEmpty()) return fetchArticles()
+        return articlesDb.mapArticles()
     }
 
-    private fun mapArticles(articlesRaw: List<ArticleRaw>): List<Article> = articlesRaw.map { raw ->
+    private suspend fun fetchArticles(): List<Article> {
+        val fetchedArticles = service.fetchArticles()
+        dataSource.insertArticles(fetchedArticles)
+        return fetchedArticles.mapArticles()
+    }
+
+    private fun List<ArticleRaw>.mapArticles(): List<Article> = this.map { raw ->
         Article(
             raw.title,
             raw.desc ?: "Click to find out more",
@@ -39,4 +55,5 @@ class ArticlesUseCase(private val repo: ArticlesRepository) {
 
         return result
     }
+
 }

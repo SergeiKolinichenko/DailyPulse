@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -28,40 +29,53 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import my.mvi.dailypulse.articles.Article
-import my.mvi.dailypulse.articles.ArticlesViewModel
+import my.mvi.dailypulse.articles.domain.Article
+import my.mvi.dailypulse.articles.presentation.ArticlesViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun ArticlesScreen(
+    modifier: Modifier = Modifier,
+    onSourcesButtonClick: () -> Unit,
     onAboutButtonClick: () -> Unit,
     viewModel: ArticlesViewModel = koinViewModel<ArticlesViewModel>(),
 ) {
     val articlesState = viewModel.articlesState.collectAsState()
 
     Column {
-        AppBar(onAboutButtonClick)
 
-        when {
-            articlesState.value.error != null -> ErrorMessage(message = articlesState.value.error!!)
-            articlesState.value.articles.isNotEmpty() -> ArticlesListView(viewModel)
-            articlesState.value.loading -> ArticlesListView(viewModel)
-        }
+        AppBar(
+            modifier = modifier,
+            onSourcesButtonClick = { onSourcesButtonClick() },
+            onAboutButtonClick = { onAboutButtonClick() }
+        )
+
+        if (articlesState.value.error != null) ErrorMessage(message = articlesState.value.error!!)
+        if (articlesState.value.loading) Loader()
+        else ArticlesListView(viewModel)
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AppBar(
+    modifier: Modifier = Modifier,
+    onSourcesButtonClick: () -> Unit = {},
     onAboutButtonClick: () -> Unit,
 ) {
     TopAppBar(
+        modifier = modifier,
         title = { Text(text = "Articles") },
         actions = {
+            IconButton(onClick = onSourcesButtonClick) {
+                Icon(
+                    imageVector = Icons.Outlined.Menu,
+                    contentDescription = "Sources Button",
+                )
+            }
             IconButton(onClick = onAboutButtonClick) {
                 Icon(
                     imageVector = Icons.Outlined.Info,
@@ -74,15 +88,16 @@ private fun AppBar(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ArticlesListView(viewModel: ArticlesViewModel) {
+private fun ArticlesListView(viewModel: ArticlesViewModel) {
 
-    PullToRefreshBox (
+    PullToRefreshBox(
         isRefreshing = viewModel.articlesState.value.loading,
         onRefresh = { viewModel.getArticles(forceFetch = true) }
 
     ) {
-        LazyColumn(modifier = Modifier
-            .fillMaxSize()
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
         ) {
             items(viewModel.articlesState.value.articles) { article ->
                 ArticleItemView(article = article)
@@ -117,19 +132,6 @@ fun ArticleItemView(article: Article) {
             modifier = Modifier.align(Alignment.End)
         )
         Spacer(modifier = Modifier.height(4.dp))
-    }
-}
-
-@Composable
-fun ErrorMessage(message: String) {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = message,
-            style = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center)
-        )
     }
 }
 

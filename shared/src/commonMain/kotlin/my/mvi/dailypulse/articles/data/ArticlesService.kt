@@ -1,4 +1,4 @@
-package my.mvi.dailypulse.articles
+package my.mvi.dailypulse.articles.data
 
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body

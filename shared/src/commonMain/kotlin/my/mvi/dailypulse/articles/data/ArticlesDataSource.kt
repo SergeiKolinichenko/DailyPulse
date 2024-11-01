@@ -1,20 +1,20 @@
-package my.mvi.dailypulse.articles
+package my.mvi.dailypulse.articles.data
 
 import my.mvi.dailypulse.database.DailyPulseDatabase
 
 class ArticlesDataSource(private val database: DailyPulseDatabase) {
 
     fun getAllArticles(): List<ArticleRaw>  =
-        database.dailyPilseDatabaseQueries.selectAllArticles(::mapToArticleRaw).executeAsList()
+        database.dailyPulseDatabaseQueries.selectAllArticles(::mapToArticleRaw).executeAsList()
 
-    fun insertArticles(articles: List<ArticleRaw>) = database.dailyPilseDatabaseQueries.transaction {
+    fun insertArticles(articles: List<ArticleRaw>) = database.dailyPulseDatabaseQueries.transaction {
         articles.forEach { articleRaw -> insertArticle(articleRaw) }
     }
 
-    fun cleanArticles() = database.dailyPilseDatabaseQueries.remuveAllArticles()
+    fun cleanArticles() = database.dailyPulseDatabaseQueries.removeAllArticles()
 
     private fun insertArticle(article: ArticleRaw) =
-        database.dailyPilseDatabaseQueries.insertArticle(
+        database.dailyPulseDatabaseQueries.insertArticle(
             title = article.title,
             desc = article.desc,
             date = article.date,

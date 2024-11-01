@@ -1,4 +1,4 @@
-package my.mvi.dailypulse.articles
+package my.mvi.dailypulse.articles.data
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

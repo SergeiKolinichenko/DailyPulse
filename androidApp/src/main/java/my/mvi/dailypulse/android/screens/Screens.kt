@@ -1,6 +1,7 @@
 package my.mvi.dailypulse.android.screens
 
 enum class Screens(val route: String) {
-    ARTICLES("reminders"),
+    ARTICLES("articles"),
+    SOURCES("sources"),
     ABOUT_DEVICE("about-device")
 }
